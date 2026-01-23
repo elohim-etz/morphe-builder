@@ -9,15 +9,22 @@ cli-version = "latest"
 # you can use rvmm-config-gen to generate a config
 
 # Morphe
-[YouTube]
-apkmirror-dlurl = "https://apkmirror.com/apk/google-inc/youtube/"
-patches-source = "MorpheApp/morphe-patches"
-cli-source = "MorpheApp/morphe-cli"
-build-mode = "both"
-
 [Music]
 apkmirror-dlurl = "https://apkmirror.com/apk/google-inc/youtube-music/"
 patches-source = "MorpheApp/morphe-patches"
 cli-source = "MorpheApp/morphe-cli"
+integrations-source = "MorpheApp/revanced-integrations"
+rv-brand = "MorpheApp ReVanced"
+excluded-patches = "'Custom branding'"
+arch = "arm64-v8a"
+build-mode = "both"
+
+[Youtube]
+apkmirror-dlurl = "https://apkmirror.com/apk/google-inc/youtube/"
+patches-source = "MorpheApp/morphe-patches"
+cli-source = "MorpheApp/morphe-cli"
+integrations-source = "MorpheApp/revanced-integrations"
+rv-brand = "MorpheApp ReVanced"
+excluded-patches = "'Custom branding' 'Change header' 'Custom player overlay opacity'"
 arch = "arm64-v8a"
 build-mode = "both"
