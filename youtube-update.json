@@ -1,6 +1,6 @@
 {
-  "version": "v20.40.45 (patches 1.9.0.mpp)",
-  "versionCode": 71,
-  "zipUrl": "https://github.com/elohim-etz/morphe-builder/releases/download/71/youtube-morphe-module-v20.40.45-all.zip",
+  "version": "v20.40.45 (patches 1.10.0.mpp)",
+  "versionCode": 72,
+  "zipUrl": "https://github.com/elohim-etz/morphe-builder/releases/download/72/youtube-morphe-module-v20.40.45-all.zip",
   "changelog": "https://raw.githubusercontent.com/elohim-etz/morphe-builder/update/build.md"
 }
