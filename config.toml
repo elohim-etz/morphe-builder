@@ -10,7 +10,7 @@ cli-version = "latest"
 
 # Morphe
 [YouTube]
-apkmirror-dlurl = "https://apkmirror.com/apk/google-inc/youtube/"
+github-release-dlurl = "https://github.com/AzyrRuthless/YTYTM-APK/releases/latest"
 patches-source = "MorpheApp/morphe-patches"
 cli-source = "MorpheApp/morphe-cli"
 module-prop-name = "YouTube-Morphe-module"
@@ -18,7 +18,7 @@ riplib = true
 build-mode = "both"
 
 [Music]
-apkmirror-dlurl = "https://apkmirror.com/apk/google-inc/youtube-music/"
+github-release-dlurl = "https://github.com/AzyrRuthless/YTYTM-APK/releases/latest"
 patches-source = "MorpheApp/morphe-patches"
 cli-source = "MorpheApp/morphe-cli"
 arch = "arm64-v8a"
