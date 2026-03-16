@@ -1,6 +1,6 @@
 {
-  "version": "v20.44.38 (patches 1.18.0.mpp)",
-  "versionCode": 78,
-  "zipUrl": "https://github.com/elohim-etz/morphe-builder/releases/download/78/youtube-morphe-module-v20.44.38-all.zip",
+  "version": "v20.44.38 (patches 1.19.0.mpp)",
+  "versionCode": 79,
+  "zipUrl": "https://github.com/elohim-etz/morphe-builder/releases/download/79/youtube-morphe-module-v20.44.38-all.zip",
   "changelog": "https://raw.githubusercontent.com/elohim-etz/morphe-builder/update/build.md"
 }
