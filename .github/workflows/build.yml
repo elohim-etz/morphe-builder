@@ -123,7 +123,16 @@ jobs:
           MUSIC_VER=$(grep -oP 'Music: \K[0-9.]+' build.md || echo "N/A")
           CLI_VER=$(grep -oP 'morphe-cli-\K[0-9.]+' build.md || echo "N/A")
           PATCHES_VER=$(grep -oP 'patches-\K[0-9.]+-dev\.[0-9]+' build.md || grep -oP 'patches-\K[0-9.]+' build.md || echo "N/A")
+          PATCHES_CHANGELOG=$(grep -oP '\[Changelog\]\(\K[^)]+' build.md | head -1 || echo "")
           
+          LINKS="• [GitHub Release](${RELEASE_URL})"
+          if [ -n "$PATCHES_CHANGELOG" ]; then
+            LINKS="${LINKS}
+          • [Patches Changelog](${PATCHES_CHANGELOG})"
+          fi
+          LINKS="${LINKS}
+          • [Builder Source](https://github.com/elohim-etz/morphe-builder)"
+
           MSG="🚀 *New Morphe CI Build Available!*
 
           *📦 YouTube:* \`${YOUTUBE_VER}\`
@@ -143,8 +152,7 @@ jobs:
           • Non-root: Install APK + [MicroG-RE](https://github.com/MorpheApp/MicroG-RE/releases)
 
           *Links:*
-          • [Full Changelog](${RELEASE_URL})
-          • [Builder Source](https://github.com/elohim-etz/morphe-builder)
+          ${LINKS}
 
           Built with ❤️ by [𝙴𝙻𝙾𝙷𝙸𝙼](https://t.me/elohim152)"
           
