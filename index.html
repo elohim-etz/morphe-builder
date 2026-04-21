@@ -1,0 +1,1320 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>morphe-builder — Downloads</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            :root {
+                /* Surfaces */
+                --bg: #07090d;
+                --bg2: #0c1018;
+                --bg3: #131a23;
+                --bg4: #192030;
+                --bg5: #1f2a3c;
+
+                /* Borders */
+                --br: #1e2d40;
+                --br2: #28394f;
+                --br3: #344d68;
+
+                /* Text */
+                --tx: #c8d8ea;
+                --tx2: #8fa8c0;
+                --tx3: #4d6a84;
+
+                /* Accent — cool slate-blue */
+                --acc: #4c9eff;
+                --acc-dim: rgba(76, 158, 255, 0.12);
+                --acc-border: rgba(76, 158, 255, 0.28);
+                --acc-text: #82bfff;
+
+                /* Success */
+                --grn: #23d18b;
+                --grn-dim: rgba(35, 209, 139, 0.1);
+                --grn-text: #4ddfaa;
+
+                /* Warning */
+                --amb: #e8a838;
+                --amb-text: #f2c46a;
+
+                /* Danger */
+                --red-text: #f87171;
+
+                --r: 8px;
+                --rl: 12px;
+                --fn: "Inter", system-ui, sans-serif;
+                --mo: "JetBrains Mono", monospace;
+            }
+
+            body {
+                background: var(--bg);
+                color: var(--tx);
+                font-family: var(--fn);
+                font-size: 14px;
+                line-height: 1.55;
+                min-height: 100vh;
+                -webkit-font-smoothing: antialiased;
+            }
+            body::before {
+                content: "";
+                position: fixed;
+                inset: 0;
+                pointer-events: none;
+                z-index: 0;
+                background:
+                    radial-gradient(
+                        ellipse 70% 45% at 50% 0%,
+                        rgba(76, 158, 255, 0.055) 0%,
+                        transparent 70%
+                    ),
+                    radial-gradient(
+                        ellipse 40% 30% at 90% 90%,
+                        rgba(35, 209, 139, 0.035) 0%,
+                        transparent 65%
+                    );
+            }
+
+            .wrap {
+                max-width: 900px;
+                margin: 0 auto;
+                padding: 1.5rem 1rem 4rem;
+                position: relative;
+                z-index: 1;
+            }
+
+            /* ─── Header ─── */
+            .hd {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                margin-bottom: 1.5rem;
+            }
+            .brand {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                min-width: 0;
+            }
+            .brand-ico {
+                width: 34px;
+                height: 34px;
+                flex-shrink: 0;
+                border-radius: 9px;
+                background: var(--bg3);
+                border: 1px solid var(--br2);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--acc-text);
+            }
+            .brand-tx {
+                min-width: 0;
+            }
+            .brand-owner {
+                font-size: 10px;
+                color: var(--tx3);
+                font-weight: 600;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+            }
+            .brand-repo {
+                font-size: 15px;
+                font-weight: 800;
+                color: var(--tx);
+                letter-spacing: -0.02em;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .ref-btn {
+                flex-shrink: 0;
+                background: var(--bg3);
+                border: 1px solid var(--br2);
+                color: var(--tx2);
+                padding: 7px 13px;
+                border-radius: var(--r);
+                cursor: pointer;
+                font-size: 13px;
+                font-family: var(--fn);
+                font-weight: 600;
+                transition: all 0.15s;
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+            }
+            .ref-btn:hover {
+                background: var(--bg4);
+                border-color: var(--acc);
+                color: var(--acc-text);
+            }
+
+            /* ─── Metrics ─── */
+            .metrics {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+                margin-bottom: 1.1rem;
+            }
+            @media (max-width: 520px) {
+                .metrics {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+
+            .met {
+                background: var(--bg2);
+                border: 1px solid var(--br);
+                border-radius: var(--rl);
+                padding: 13px 14px;
+                position: relative;
+                overflow: hidden;
+            }
+            .met::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                background: linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.016) 0%,
+                    transparent 55%
+                );
+            }
+            .met-lbl {
+                font-size: 9.5px;
+                color: var(--tx3);
+                text-transform: uppercase;
+                letter-spacing: 0.09em;
+                font-weight: 700;
+                margin-bottom: 5px;
+            }
+            .met-val {
+                font-size: 24px;
+                font-weight: 800;
+                line-height: 1;
+                letter-spacing: -0.03em;
+            }
+            .met-val.blue {
+                color: var(--acc-text);
+            }
+            .met-val.green {
+                color: var(--grn-text);
+            }
+            .met-val.sm {
+                font-size: 12px;
+                font-family: var(--mo);
+                font-weight: 600;
+                letter-spacing: 0;
+                padding-top: 5px;
+            }
+            .met-sub {
+                font-size: 10px;
+                color: var(--tx3);
+                margin-top: 3px;
+            }
+
+            /* ─── Banner ─── */
+            .banner {
+                background: linear-gradient(
+                    120deg,
+                    rgba(76, 158, 255, 0.07),
+                    rgba(76, 158, 255, 0.03)
+                );
+                border: 1px solid var(--acc-border);
+                border-radius: var(--r);
+                padding: 10px 14px;
+                margin-bottom: 1.1rem;
+                font-size: 12.5px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+            .banner-star {
+                color: var(--amb);
+                font-size: 13px;
+                flex-shrink: 0;
+            }
+            .banner code {
+                font-family: var(--mo);
+                font-size: 11.5px;
+                background: rgba(255, 255, 255, 0.06);
+                padding: 1px 6px;
+                border-radius: 4px;
+                color: var(--acc-text);
+                word-break: break-all;
+            }
+            .banner strong {
+                color: var(--acc-text);
+                font-weight: 700;
+            }
+
+            /* ─── Chart ─── */
+            .chart-card {
+                background: var(--bg2);
+                border: 1px solid var(--br);
+                border-radius: var(--rl);
+                padding: 14px 16px;
+                margin-bottom: 1.1rem;
+                overflow: hidden;
+            }
+            .sec-hd {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 12px;
+                gap: 8px;
+            }
+            .sec-title {
+                font-size: 10px;
+                font-weight: 700;
+                color: var(--tx2);
+                text-transform: uppercase;
+                letter-spacing: 0.09em;
+            }
+            .sec-hint {
+                font-size: 10px;
+                color: var(--tx3);
+            }
+
+            .bar-row {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                margin-bottom: 5px;
+            }
+            .bar-row:last-child {
+                margin-bottom: 0;
+            }
+            .bar-row.hidden {
+                display: none;
+            }
+
+            .bar-lbl {
+                width: 82px;
+                flex-shrink: 0;
+                text-align: right;
+                display: flex;
+                flex-direction: column;
+            }
+            .bar-tag {
+                font-size: 10.5px;
+                font-family: var(--mo);
+                font-weight: 700;
+                color: var(--tx);
+                line-height: 1.2;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .bar-date {
+                font-size: 9px;
+                color: var(--tx3);
+                line-height: 1.3;
+                margin-top: 1px;
+            }
+
+            .bar-track {
+                flex: 1;
+                height: 16px;
+                background: var(--bg3);
+                border-radius: 4px;
+                overflow: hidden;
+                min-width: 0;
+            }
+            .bar-fill {
+                height: 100%;
+                border-radius: 4px;
+                position: relative;
+                transition: width 0.85s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .bar-fill::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(
+                    90deg,
+                    transparent 40%,
+                    rgba(255, 255, 255, 0.09)
+                );
+            }
+
+            .bar-cnt {
+                font-size: 11px;
+                font-weight: 700;
+                font-family: var(--mo);
+                min-width: 34px;
+                text-align: right;
+                color: var(--tx);
+                flex-shrink: 0;
+            }
+
+            .chart-toggle {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                margin-top: 8px;
+                padding: 5px 10px;
+                background: var(--bg3);
+                border: 1px solid var(--br);
+                border-radius: var(--r);
+                color: var(--tx2);
+                font-size: 11px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.14s;
+            }
+            .chart-toggle:hover {
+                background: var(--bg4);
+                border-color: var(--acc-border);
+                color: var(--acc-text);
+            }
+            .chart-toggle svg {
+                transition: transform 0.2s;
+            }
+            .chart-toggle.expanded svg {
+                transform: rotate(180deg);
+            }
+
+            /* ─── Controls ─── */
+            .controls {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+                margin-bottom: 0.9rem;
+                flex-wrap: wrap;
+            }
+            .ctl-l {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                flex-wrap: wrap;
+            }
+            .ctl-lbl {
+                font-size: 10px;
+                color: var(--tx3);
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+            }
+
+            select {
+                font-size: 12px;
+                padding: 6px 10px;
+                border-radius: var(--r);
+                border: 1px solid var(--br2);
+                background: var(--bg2);
+                color: var(--tx);
+                cursor: pointer;
+                font-family: var(--fn);
+                font-weight: 600;
+                max-width: 200px;
+            }
+            select:focus {
+                outline: 2px solid var(--acc);
+                outline-offset: 1px;
+            }
+
+            .srt-btn {
+                background: var(--bg3);
+                border: 1px solid var(--br);
+                color: var(--tx3);
+                padding: 5px 10px;
+                border-radius: var(--r);
+                cursor: pointer;
+                font-size: 11px;
+                font-family: var(--fn);
+                font-weight: 700;
+                letter-spacing: 0.04em;
+                transition: all 0.14s;
+            }
+            .srt-btn.on {
+                border-color: var(--acc-border);
+                color: var(--acc-text);
+                background: var(--acc-dim);
+            }
+            .srt-btn:not(.on):hover {
+                color: var(--tx);
+                border-color: var(--br2);
+            }
+
+            .ctl-count {
+                font-size: 11px;
+                color: var(--tx3);
+                white-space: nowrap;
+            }
+
+            /* ─── Release cards ─── */
+            .rel-card {
+                background: var(--bg2);
+                border: 1px solid var(--br);
+                border-radius: var(--rl);
+                overflow: hidden;
+                margin-bottom: 7px;
+                transition:
+                    border-color 0.18s,
+                    box-shadow 0.18s;
+            }
+            .rel-card:hover {
+                border-color: var(--br2);
+                box-shadow: 0 2px 18px rgba(0, 0, 0, 0.25);
+            }
+
+            .rel-hd {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 11px 14px;
+                gap: 10px;
+                flex-wrap: nowrap;
+                cursor: pointer;
+                user-select: none;
+                background: linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.012),
+                    transparent
+                );
+                border-bottom: 1px solid var(--br);
+                transition: background 0.15s;
+            }
+            .rel-hd:hover {
+                background: rgba(76, 158, 255, 0.04);
+            }
+            .rel-card.collapsed .rel-hd {
+                border-bottom-color: transparent;
+            }
+            .rel-card.collapsed .rel-body {
+                display: none;
+            }
+
+            .rel-hd-l {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+                min-width: 0;
+                flex: 1;
+            }
+            .rel-tag-row {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .rel-tag {
+                font-family: var(--mo);
+                font-size: 13.5px;
+                font-weight: 700;
+                color: var(--acc-text);
+                white-space: nowrap;
+            }
+            .chev {
+                font-size: 10px;
+                color: var(--tx3);
+                transition: transform 0.2s;
+                flex-shrink: 0;
+            }
+            .rel-card.collapsed .chev {
+                transform: rotate(-90deg);
+            }
+
+            .rel-name {
+                font-size: 11px;
+                color: var(--tx2);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .rel-meta {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                flex-wrap: wrap;
+                font-size: 11px;
+                color: var(--tx3);
+            }
+            .rel-meta .sep {
+                width: 2px;
+                height: 2px;
+                border-radius: 50%;
+                background: var(--tx3);
+                flex-shrink: 0;
+            }
+
+            /* downloads pill in header — large, easy to read */
+            .dl-pill {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                background: var(--acc-dim);
+                border: 1px solid var(--acc-border);
+                color: var(--acc-text);
+                font-family: var(--mo);
+                font-size: 11px;
+                font-weight: 700;
+                padding: 2px 8px;
+                border-radius: 20px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            .dl-pill svg {
+                opacity: 0.7;
+            }
+
+            .rel-hd-r {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                flex-shrink: 0;
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+            .badge {
+                font-size: 9.5px;
+                padding: 2px 7px;
+                border-radius: 20px;
+                border: 1px solid;
+                font-weight: 700;
+                white-space: nowrap;
+                letter-spacing: 0.03em;
+            }
+            .b-latest {
+                background: var(--grn-dim);
+                color: var(--grn-text);
+                border-color: rgba(35, 209, 139, 0.28);
+            }
+            .b-pre {
+                background: rgba(232, 168, 56, 0.07);
+                color: var(--amb-text);
+                border-color: rgba(232, 168, 56, 0.22);
+            }
+            .b-gray {
+                background: var(--bg3);
+                color: var(--tx3);
+                border-color: var(--br);
+            }
+
+            /* ─── Asset rows (mobile-friendly card layout) ─── */
+            .asset-list {
+                padding: 0;
+            }
+
+            .asset-item {
+                display: grid;
+                grid-template-columns: 1fr auto;
+                grid-template-rows: auto auto;
+                gap: 0 12px;
+                padding: 11px 14px;
+                border-bottom: 1px solid var(--br);
+                transition: background 0.1s;
+                align-items: center;
+            }
+            .asset-item:last-child {
+                border-bottom: none;
+            }
+            .asset-item:hover {
+                background: rgba(76, 158, 255, 0.03);
+            }
+            .asset-item.hidden {
+                display: none;
+            }
+
+            .asset-info {
+                grid-column: 1;
+                grid-row: 1;
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                min-width: 0;
+            }
+            .rank-dot {
+                width: 18px;
+                height: 18px;
+                border-radius: 5px;
+                flex-shrink: 0;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 9px;
+                font-weight: 800;
+                font-family: var(--mo);
+            }
+            .r1 {
+                background: rgba(232, 168, 56, 0.12);
+                color: var(--amb);
+                border: 1px solid rgba(232, 168, 56, 0.25);
+            }
+            .r2 {
+                background: rgba(180, 180, 180, 0.07);
+                color: #8a9bb0;
+                border: 1px solid rgba(180, 180, 180, 0.15);
+            }
+            .r3 {
+                background: rgba(160, 90, 40, 0.1);
+                color: #b07040;
+                border: 1px solid rgba(160, 90, 40, 0.2);
+            }
+            .r-other {
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            .asset-name {
+                font-family: var(--mo);
+                font-size: 12px;
+                color: var(--tx);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                min-width: 0;
+            }
+            .pt-tag {
+                font-size: 8.5px;
+                font-weight: 700;
+                padding: 1px 5px;
+                border-radius: 3px;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                flex-shrink: 0;
+            }
+            .pt-win {
+                background: rgba(76, 158, 255, 0.12);
+                color: #70aaff;
+            }
+            .pt-mac {
+                background: rgba(163, 113, 243, 0.12);
+                color: #b990ff;
+            }
+            .pt-linux {
+                background: rgba(255, 185, 72, 0.12);
+                color: #f2b94e;
+            }
+
+            /* download bar + count row */
+            .asset-stats {
+                grid-column: 1;
+                grid-row: 2;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-top: 5px;
+            }
+            .sz-lbl {
+                font-size: 10px;
+                color: var(--tx3);
+                font-family: var(--mo);
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            .dl-bar-wrap {
+                flex: 1;
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                min-width: 0;
+            }
+            .dl-bar {
+                flex: 1;
+                height: 5px;
+                background: var(--bg4);
+                border-radius: 3px;
+                overflow: hidden;
+                min-width: 20px;
+            }
+            .dl-bar-fill {
+                height: 100%;
+                border-radius: 3px;
+                background: var(--acc);
+                opacity: 0.7;
+            }
+            .dl-count {
+                font-size: 11px;
+                font-weight: 700;
+                font-family: var(--mo);
+                color: var(--tx2);
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            .dl-count-note {
+                font-size: 9.5px;
+                color: var(--tx3);
+                white-space: nowrap;
+            }
+
+            /* download button */
+            .dl-btn {
+                grid-column: 2;
+                grid-row: 1/3;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 5px;
+                padding: 7px 13px;
+                border-radius: var(--r);
+                background: var(--bg3);
+                border: 1px solid var(--br2);
+                color: var(--tx2);
+                font-size: 12px;
+                font-family: var(--fn);
+                font-weight: 600;
+                text-decoration: none;
+                white-space: nowrap;
+                align-self: center;
+                transition: all 0.14s;
+            }
+            .dl-btn:hover {
+                background: var(--acc-dim);
+                border-color: var(--acc-border);
+                color: var(--acc-text);
+            }
+            .dl-btn svg {
+                flex-shrink: 0;
+            }
+
+            /* asset list toggle button */
+            .asset-toggle {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                padding: 6px 12px;
+                margin: 8px 14px 14px;
+                background: var(--bg3);
+                border: 1px solid var(--br);
+                border-radius: var(--r);
+                color: var(--tx2);
+                font-size: 11px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.14s;
+            }
+            .asset-toggle:hover {
+                background: var(--bg4);
+                border-color: var(--acc-border);
+                color: var(--acc-text);
+            }
+            .asset-toggle svg {
+                transition: transform 0.2s;
+            }
+            .asset-toggle.expanded svg {
+                transform: rotate(180deg);
+            }
+
+            /* ─── No assets ─── */
+            .no-asset {
+                padding: 18px;
+                text-align: center;
+                color: var(--tx3);
+                font-size: 13px;
+            }
+
+            /* ─── States ─── */
+            .state {
+                text-align: center;
+                padding: 3.5rem 1rem;
+                color: var(--tx2);
+                font-size: 14px;
+            }
+            .err {
+                color: var(--red-text);
+                background: rgba(248, 113, 113, 0.05);
+                border: 1px solid rgba(248, 113, 113, 0.17);
+                border-radius: var(--rl);
+            }
+            .spin {
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                border: 2px solid var(--br);
+                border-top-color: var(--acc);
+                border-radius: 50%;
+                animation: sp 0.7s linear infinite;
+                margin-bottom: 10px;
+            }
+            @keyframes sp {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="wrap">
+            <div id="root">
+                <div class="state">
+                    <div class="spin"></div>
+                    <br />Fetching release data…
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const OWNER = "elohim-etz";
+            const REPO = "morphe-builder";
+            const DEFAULT_VISIBLE = 5; // Show 5 items by default in chart & asset lists
+
+            const fmt = (n) => Number(n).toLocaleString();
+            const fmtDt = (d) =>
+                new Date(d).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                });
+            const fmtSz = (b) =>
+                b < 1048576
+                    ? (b / 1024).toFixed(1) + " KB"
+                    : (b / 1048576).toFixed(1) + " MB";
+
+            // Cycle of perceptually distinct, non-clashing hues for dark bg
+            const COLORS = [
+                "#4c9eff",
+                "#23d18b",
+                "#f48b3a",
+                "#a57cf5",
+                "#e8a838",
+                "#f06b8a",
+                "#18d4c8",
+                "#7cc84e",
+                "#d46ff0",
+                "#5ab8f5",
+                "#f0c240",
+                "#60c88a",
+            ];
+
+            let _releases = [],
+                _sort = "newest";
+
+            // Platform tag — NO Android
+            function ptag(name) {
+                const n = name.toLowerCase();
+                if (
+                    n.includes("win") ||
+                    n.includes(".exe") ||
+                    n.includes(".msi")
+                )
+                    return ["Windows", "pt-win"];
+                if (
+                    n.includes("mac") ||
+                    n.includes("darwin") ||
+                    n.includes(".dmg")
+                )
+                    return ["macOS", "pt-mac"];
+                if (
+                    n.includes("linux") ||
+                    n.includes(".deb") ||
+                    n.includes(".rpm") ||
+                    n.includes(".tar.gz") ||
+                    n.includes(".tar.xz") ||
+                    n.includes("appimage")
+                )
+                    return ["Linux", "pt-linux"];
+                return ["", ""];
+            }
+
+            function shortTag(t) {
+                return t.replace(
+                    /-(all|morphe|release|stable|beta|alpha)$/i,
+                    "",
+                );
+            }
+
+            function dlIcon(size = 13) {
+                return `<svg width="${size}" height="${size}" viewBox="0 0 16 16" fill="currentColor">
+    <path d="M7.47 10.78a.75.75 0 001.06 0l3.75-3.75a.75.75 0 00-1.06-1.06L8.75 8.44V1.75a.75.75 0 00-1.5 0v6.69L4.78 5.97a.75.75 0 00-1.06 1.06l3.75 3.75zM1.75 13.5a.75.75 0 000 1.5h12.5a.75.75 0 000-1.5H1.75z"/>
+  </svg>`;
+            }
+
+            function toggleChevron(size = 10) {
+                return `<svg width="${size}" height="${size}" viewBox="0 0 16 16" fill="currentColor">
+    <path d="M4.22 6.22a.75.75 0 011.06 0L8 8.94l2.72-2.72a.75.75 0 111.06 1.06l-3.25 3.25a.75.75 0 01-1.06 0L4.22 7.28a.75.75 0 010-1.06z"/>
+  </svg>`;
+            }
+
+            async function fetchAllReleases() {
+                let page = 1,
+                    all = [];
+                while (true) {
+                    const r = await fetch(
+                        `https://api.github.com/repos/${OWNER}/${REPO}/releases?per_page=100&page=${page}`,
+                    );
+                    const d = await r.json();
+                    if (d.message) throw new Error(d.message);
+                    if (!Array.isArray(d) || d.length === 0) break;
+                    all = all.concat(d);
+                    if (d.length < 100) break;
+                    page++;
+                }
+                return all;
+            }
+
+            function render(releases, filter, sort) {
+                _releases = releases;
+                _sort = sort || _sort;
+
+                // GitHub API returns releases in newest-first order (published_at descending)
+                let sorted = [...releases]; // ✅ newest first (default)
+
+                if (_sort === "oldest") {
+                    sorted = [...releases].reverse(); // ✅ oldest first
+                }
+
+                if (_sort === "popular") {
+                    sorted = [...releases].sort((a, b) => {
+                        const sa = (a.assets || []).reduce(
+                            (s, x) => s + x.download_count,
+                            0,
+                        );
+                        const sb = (b.assets || []).reduce(
+                            (s, x) => s + x.download_count,
+                            0,
+                        );
+                        return sb - sa;
+                    });
+                }
+
+                const allAssets = releases.flatMap((r) => r.assets || []);
+                const totalDl = allAssets.reduce(
+                    (s, a) => s + a.download_count,
+                    0,
+                );
+                const topAsset = allAssets.length
+                    ? allAssets.reduce((a, b) =>
+                          a.download_count > b.download_count ? a : b,
+                      )
+                    : null;
+                const latest = releases[0]; // ✅ API returns newest first
+
+                // Chart: newest → oldest (matching API order, latest at top)
+                const chrono = [...releases]; // ✅ keep newest-first
+                const relTots = chrono.map((r, i) => ({
+                    tag: shortTag(r.tag_name),
+                    date: fmtDt(r.published_at),
+                    total: (r.assets || []).reduce(
+                        (s, a) => s + a.download_count,
+                        0,
+                    ),
+                    color: COLORS[i % COLORS.length],
+                }));
+                const maxRel = Math.max(...relTots.map((x) => x.total), 1);
+
+                const filtered =
+                    filter === "all"
+                        ? sorted
+                        : sorted.filter((r) => r.tag_name === filter);
+                const opts = [...releases]
+                    .map(
+                        (r) =>
+                            `<option value="${r.tag_name}">${shortTag(r.tag_name)} — ${fmtDt(r.published_at)}</option>`,
+                    )
+                    .join("");
+
+                /* ── chart rows ── */
+                const chartRowsHTML = relTots
+                    .map(
+                        (r, i) => `
+    <div class="bar-row ${i >= DEFAULT_VISIBLE ? "hidden" : ""}" data-chart-idx="${i}">
+      <div class="bar-lbl">
+        <span class="bar-tag">${r.tag}</span>
+        <span class="bar-date">${r.date}</span>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${Math.round((r.total / maxRel) * 100)}%;background:${r.color}"></div>
+      </div>
+      <span class="bar-cnt">${fmt(r.total)}</span>
+    </div>`,
+                    )
+                    .join("");
+
+                const chartToggleHTML =
+                    relTots.length > DEFAULT_VISIBLE
+                        ? `<button class="chart-toggle" onclick="toggleChart()">
+                        ${toggleChevron(10)} Show all ${relTots.length} releases
+                      </button>`
+                        : "";
+
+                /* ── release cards ── */
+                const cardsHTML = filtered
+                    .map((rel) => {
+                        const assets = (rel.assets || [])
+                            .slice()
+                            .sort(
+                                (a, b) => b.download_count - a.download_count,
+                            );
+                        const relDl = assets.reduce(
+                            (s, a) => s + a.download_count,
+                            0,
+                        );
+                        const maxA = Math.max(
+                            ...assets.map((a) => a.download_count),
+                            1,
+                        );
+                        const isLatest = rel.tag_name === latest?.tag_name;
+                        const cid =
+                            "c-" + rel.tag_name.replace(/[^a-z0-9]/gi, "-");
+
+                        const assetRows =
+                            assets.length === 0
+                                ? `<div class="no-asset">No downloadable assets</div>`
+                                : assets
+                                      .map((a, i) => {
+                                          const [ptLabel, ptClass] = ptag(
+                                              a.name,
+                                          );
+                                          const rankCls =
+                                              i === 0
+                                                  ? "r1"
+                                                  : i === 1
+                                                    ? "r2"
+                                                    : i === 2
+                                                      ? "r3"
+                                                      : "r-other";
+                                          const pct = Math.round(
+                                              (a.download_count / maxA) * 100,
+                                          );
+                                          return `
+          <div class="asset-item ${i >= DEFAULT_VISIBLE ? "hidden" : ""}" data-asset-idx="${i}">
+            <div class="asset-info">
+              <span class="rank-dot ${rankCls}">${i + 1}</span>
+              <span class="asset-name" title="${a.name}">${a.name}</span>
+              ${ptLabel ? `<span class="pt-tag ${ptClass}">${ptLabel}</span>` : ""}
+            </div>
+            <a class="dl-btn" href="${a.browser_download_url}" title="Download ${a.name}">
+              ${dlIcon(12)} Download
+            </a>
+            <div class="asset-stats">
+              <span class="sz-lbl">${fmtSz(a.size)}</span>
+              <div class="dl-bar-wrap">
+                <div class="dl-bar"><div class="dl-bar-fill" style="width:${pct}%"></div></div>
+                <span class="dl-count">${fmt(a.download_count)}</span>
+                <span class="dl-count-note">downloads</span>
+              </div>
+            </div>
+          </div>`;
+                                      })
+                                      .join("");
+
+                        const assetToggleHTML =
+                            assets.length > DEFAULT_VISIBLE
+                                ? `<button class="asset-toggle" onclick="toggleAssets('${cid}', ${assets.length})">
+                                ${toggleChevron(10)} Show all ${assets.length} assets
+                              </button>`
+                                : "";
+
+                        return `
+    <div class="rel-card" id="${cid}">
+      <div class="rel-hd" onclick="tog('${cid}')">
+        <div class="rel-hd-l">
+          <div class="rel-tag-row">
+            <span class="rel-tag">${shortTag(rel.tag_name)}</span>
+            <span class="chev">▾</span>
+          </div>
+          ${rel.name && rel.name !== rel.tag_name ? `<div class="rel-name">${rel.name}</div>` : ""}
+          <div class="rel-meta">
+            <span>${fmtDt(rel.published_at)}</span>
+            ${
+                relDl > 0
+                    ? `<span class="sep"></span>
+            <span class="dl-pill">
+              ${dlIcon(10)} ${fmt(relDl)} downloads
+            </span>`
+                    : ""
+            }
+          </div>
+        </div>
+        <div class="rel-hd-r">
+          ${isLatest ? `<span class="badge b-latest">Latest</span>` : ""}
+          ${rel.prerelease ? `<span class="badge b-pre">Pre-release</span>` : ""}
+        </div>
+      </div>
+      <div class="rel-body asset-list">
+        ${assetRows}
+        ${assetToggleHTML}
+      </div>
+    </div>`;
+                    })
+                    .join("");
+
+                document.getElementById("root").innerHTML = `
+  <div class="hd">
+    <div class="brand">
+      <div class="brand-ico">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+      </div>
+      <div class="brand-tx">
+        <div class="brand-owner">${OWNER}</div>
+        <div class="brand-repo">${REPO}</div>
+      </div>
+    </div>
+    <button class="ref-btn" onclick="loadData()">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M8 3a5 5 0 105 5 .75.75 0 011.5 0 6.5 6.5 0 11-6.5-6.5h.75V.25a.25.25 0 01.427-.177l2.5 2.5a.25.25 0 010 .354l-2.5 2.5A.25.25 0 018.75 5.25V3H8z"/>
+      </svg>
+      Refresh
+    </button>
+  </div>
+
+  <div class="metrics">
+    <div class="met">
+      <div class="met-lbl">Total Downloads</div>
+      <div class="met-val blue">${fmt(totalDl)}</div>
+      <div class="met-sub">all releases</div>
+    </div>
+    <div class="met">
+      <div class="met-lbl">Releases</div>
+      <div class="met-val green">${releases.length}</div>
+    </div>
+    <div class="met">
+      <div class="met-lbl">Total Assets</div>
+      <div class="met-val">${allAssets.length}</div>
+    </div>
+    <div class="met">
+      <div class="met-lbl">Latest</div>
+      <div class="met-val sm">${latest ? shortTag(latest.tag_name) : "—"}</div>
+      <div class="met-sub">${latest ? fmtDt(latest.published_at) : ""}</div>
+    </div>
+  </div>
+
+  ${
+      topAsset
+          ? `
+  <div class="banner">
+    <span class="banner-star">★</span>
+    Most downloaded: <code>${topAsset.name}</code>
+    · <strong>${fmt(topAsset.download_count)} downloads</strong>
+  </div>`
+          : ""
+  }
+
+  ${
+      relTots.length > 0
+          ? `
+  <div class="chart-card">
+    <div class="sec-hd">
+      <span class="sec-title">Downloads by Release</span>
+      <span class="sec-hint">newest → oldest</span>
+    </div>
+    <div id="chart-rows">
+    ${chartRowsHTML}
+    </div>
+    ${chartToggleHTML}
+  </div>`
+          : ""
+  }
+
+  <div class="controls">
+    <div class="ctl-l">
+      <span class="ctl-lbl">Filter</span>
+      <select id="fsel" onchange="render(_releases,this.value,_sort)">
+        <option value="all">All releases</option>
+        ${opts}
+      </select>
+      <button class="srt-btn ${_sort === "newest" ? "on" : ""}" onclick="resort('newest')">Newest</button>
+      <button class="srt-btn ${_sort === "oldest" ? "on" : ""}" onclick="resort('oldest')">Oldest</button>
+      <button class="srt-btn ${_sort === "popular" ? "on" : ""}" onclick="resort('popular')">Popular</button>
+    </div>
+    <span class="ctl-count">${filtered.length} / ${releases.length}</span>
+  </div>
+
+  <div id="cards">
+    ${filtered.length === 0 ? '<div class="no-asset" style="padding:2rem">No releases found.</div>' : cardsHTML}
+  </div>`;
+
+                document.getElementById("fsel").value = filter;
+            }
+
+            function tog(id) {
+                const el = document.getElementById(id);
+                if (el) el.classList.toggle("collapsed");
+            }
+
+            function resort(s) {
+                render(_releases, document.getElementById("fsel").value, s);
+            }
+
+            // Toggle chart visibility - show all or limit to DEFAULT_VISIBLE
+            function toggleChart() {
+                const btn = document.querySelector(".chart-toggle");
+                if (!btn) return;
+
+                const rows = document.querySelectorAll("[data-chart-idx]");
+                const isExpanded = btn.classList.contains("expanded");
+                const total = rows.length;
+
+                rows.forEach((row) => {
+                    const idx = parseInt(row.dataset.chartIdx);
+                    if (isExpanded) {
+                        // Collapsing: hide items beyond DEFAULT_VISIBLE
+                        if (idx >= DEFAULT_VISIBLE) {
+                            row.classList.add("hidden");
+                        }
+                    } else {
+                        // Expanding: show all
+                        row.classList.remove("hidden");
+                    }
+                });
+
+                btn.classList.toggle("expanded");
+                btn.innerHTML = `${toggleChevron(10)} ${isExpanded ? `Show all ${total} releases` : "Show less"}`;
+            }
+
+            // Toggle asset list visibility for a specific release card
+            function toggleAssets(cardId, totalAssets) {
+                const card = document.getElementById(cardId);
+                if (!card) return;
+
+                const btn = card.querySelector(".asset-toggle");
+                if (!btn) return;
+
+                const items = card.querySelectorAll("[data-asset-idx]");
+                const isExpanded = btn.classList.contains("expanded");
+
+                items.forEach((item) => {
+                    const idx = parseInt(item.dataset.assetIdx);
+                    if (isExpanded) {
+                        // Collapsing: hide items beyond DEFAULT_VISIBLE
+                        if (idx >= DEFAULT_VISIBLE) {
+                            item.classList.add("hidden");
+                        }
+                    } else {
+                        // Expanding: show all
+                        item.classList.remove("hidden");
+                    }
+                });
+
+                btn.classList.toggle("expanded");
+                btn.innerHTML = `${toggleChevron(10)} ${isExpanded ? `Show all ${totalAssets} assets` : "Show less"}`;
+            }
+
+            async function loadData() {
+                document.getElementById("root").innerHTML =
+                    `<div class="state"><div class="spin"></div><br>Fetching release data…</div>`;
+                try {
+                    const releases = await fetchAllReleases();
+                    render(releases, "all", "newest");
+                } catch (e) {
+                    document.getElementById("root").innerHTML =
+                        `<div class="state err">GitHub API error: ${e.message}<br><br>
+       <button class="ref-btn" onclick="loadData()">Try again</button></div>`;
+                }
+            }
+
+            loadData();
+        </script>
+    </body>
+</html>
