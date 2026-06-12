@@ -11,6 +11,7 @@ cli-version = "latest"
 # Morphe
 [YouTube]
 app-name = "YouTube"
+version = "latest"
 patches-source = "MorpheApp/morphe-patches"
 cli-source = "MorpheApp/morphe-cli"
 rv-brand = "Morphe"
@@ -21,6 +22,7 @@ archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.y
 
 [Music]
 app-name = "YouTube Music"
+version = "latest"
 patches-source = "MorpheApp/morphe-patches"
 cli-source = "MorpheApp/morphe-cli"
 rv-brand = "Morphe"
