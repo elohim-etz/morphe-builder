@@ -20,8 +20,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          LATEST=$(gh api repos/MorpheApp/morphe-patches/releases --jq '[.[] | select(.prerelease == false)] | sort_by(.created_at) | reverse | .[0].tag_name')
-          echo "Latest stable patches: $LATEST"
+          LATEST=$(gh api repos/MorpheApp/morphe-patches/releases --jq 'sort_by(.created_at) | reverse | .[0].tag_name')
+          echo "Latest patches: $LATEST"
           LAST=""
           if git checkout origin/update build.md 2>/dev/null; then
             LAST=$(grep -oP 'Patches: MorpheApp/patches-\K.*?(?=\.mpp)' build.md | head -1)
