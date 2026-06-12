@@ -68,9 +68,9 @@ jobs:
         run: |
           YOUTUBE_VER=$(grep -oP 'YouTube( Beta)?: \K[0-9.]+' build.md || echo "")
           MUSIC_VER=$(grep -oP '(YouTube )?Music( Beta)?: \K[0-9.]+' build.md || grep -oP 'YouTube Music Beta: \K[0-9.]+' build.md || echo "")
-          TITLE="YouTube Beta v${YOUTUBE_VER} & YouTube Music Beta v${MUSIC_VER}"
+          TITLE="YouTube v${YOUTUBE_VER} & YouTube Music v${MUSIC_VER}"
           if [ -z "$YOUTUBE_VER" ] && [ -z "$MUSIC_VER" ]; then
-            TITLE="Beta Release"
+            TITLE="Release"
           fi
           
           if gh release view "$TAG" >/dev/null 2>&1; then
