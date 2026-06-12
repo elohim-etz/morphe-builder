@@ -118,7 +118,7 @@ jobs:
       
           if ! git diff --cached --quiet; then
             git commit -m "Bump version ${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}"
-            git push origin HEAD:update
+            git push origin HEAD:update --force
           else
             echo "no changes!"
           fi
