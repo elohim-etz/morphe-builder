@@ -40,7 +40,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG=$(gh release list -L 1 | awk -F '\t' '{print $3}')
+          TAG=$(gh release list -L 1 | awk -F '\t' '{print $3}' | grep -oP '\d+' || echo "0")
           if [ -z "$TAG" ]; then TAG=0; fi
           echo "NEXT_VER_CODE=$((TAG + 1))" >> $GITHUB_OUTPUT
 
@@ -66,11 +66,18 @@ jobs:
           TAG: ${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}
           BODY: ${{ steps.get_output.outputs.BUILD_LOG }}
         run: |
+          YOUTUBE_VER=$(grep -oP 'YouTube( Beta)?: \K[0-9.]+' build.md || echo "")
+          MUSIC_VER=$(grep -oP '(YouTube )?Music( Beta)?: \K[0-9.]+' build.md || grep -oP 'YouTube Music Beta: \K[0-9.]+' build.md || echo "")
+          TITLE="YouTube v${YOUTUBE_VER} & YouTube Music v${MUSIC_VER}"
+          if [ -z "$YOUTUBE_VER" ] && [ -z "$MUSIC_VER" ]; then
+            TITLE="Release"
+          fi
+          
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release edit "$TAG" --title "Release" --notes "$BODY"
+            gh release edit "$TAG" --title "$TITLE" --notes "$BODY"
             gh release upload "$TAG" ./build/* --clobber
           else
-            gh release create "$TAG" ./build/* --title "Release" --notes "$BODY"
+            gh release create "$TAG" ./build/* --title "$TITLE" --notes "$BODY"
           fi
 
       - name: Update modules changelog and update json
@@ -107,11 +114,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
       
-          git add build.md *-update.json
+          git add -f build.md *-update.json
       
           if ! git diff --cached --quiet; then
             git commit -m "Bump version ${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}"
-            git push origin HEAD:update
+            git push origin HEAD:update --force
           else
             echo "no changes!"
           fi
@@ -128,8 +135,8 @@ jobs:
           RELEASE_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$BUILD_NUM"
           
           cd ..
-          YOUTUBE_VER=$(grep -oP 'YouTube: \K[0-9.]+' build.md || echo "N/A")
-          MUSIC_VER=$(grep -oP 'Music: \K[0-9.]+' build.md || echo "N/A")
+          YOUTUBE_VER=$(grep -oP 'YouTube( Beta)?: \K[0-9.]+' build.md || echo "N/A")
+          MUSIC_VER=$(grep -oP '(YouTube )?Music( Beta)?: \K[0-9.]+' build.md || grep -oP 'YouTube Music Beta: \K[0-9.]+' build.md || echo "N/A")
           CLI_VER=$(grep -oP 'morphe-cli-\K[0-9.]+' build.md || echo "N/A")
           PATCHES_VER=$(grep -oP 'patches-\K[0-9.]+-dev\.[0-9]+' build.md || grep -oP 'patches-\K[0-9.]+' build.md || echo "N/A")
           PATCHES_CHANGELOG=$(grep -oP '\[Changelog\]\(\K[^)]+' build.md | head -1 || echo "")
