@@ -59,7 +59,7 @@ jobs:
           cat build.md >> "$GITHUB_OUTPUT"
           echo "${DELIM}" >> "$GITHUB_OUTPUT"
           cp -f build.md build.tmp
-      
+
       - name: Upload release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -106,9 +106,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-      
+
           git add build.md *-update.json
-      
+
           if ! git diff --cached --quiet; then
             git commit -m "Bump version ${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}"
             git push origin HEAD:update
@@ -122,173 +122,161 @@ jobs:
         if: env.TG_TOKEN != null
         run: |
           cd build || { echo "build folder not found"; exit 1; }
-          
+
           TG_CHAT="-1003087244808"
           BUILD_NUM="${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}"
           RELEASE_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$BUILD_NUM"
-          
           cd ..
-          YOUTUBE_VER=$(grep -oP 'YouTube: \K[0-9.]+' build.md || echo "N/A")
-          MUSIC_VER=$(grep -oP 'Music: \K[0-9.]+' build.md || echo "N/A")
-          CLI_VER=$(grep -oP 'morphe-cli-\K[0-9.]+' build.md || echo "N/A")
-          PATCHES_VER=$(grep -oP 'patches-\K[0-9.]+-dev\.[0-9]+' build.md || grep -oP 'patches-\K[0-9.]+' build.md || echo "N/A")
-          PATCHES_CHANGELOG=$(grep -oP '\[Changelog\]\(\K[^)]+' build.md | head -1 || echo "")
-          
-          LINKS="• [GitHub Release](${RELEASE_URL})"
-          if [ -n "$PATCHES_CHANGELOG" ]; then
-            LINKS="${LINKS}
-          • [Patches Changelog](${PATCHES_CHANGELOG})"
-          fi
-          LINKS="${LINKS}
-          • [Builder Source](https://github.com/elohim-etz/morphe-builder)"
 
-          MSG="🚀 *New Morphe CI Build Available!*
+          CLI_VER=$(grep -oPm1 '^CLI:.*?\K[0-9]+(?:\.[0-9]+)+(?:-dev\.[0-9]+)?(?=(?:-[a-zA-Z]+)?\.jar)' build.md || true)
+          CLI_VER="${CLI_VER:-N/A}"
 
-          *📦 YouTube:* \`${YOUTUBE_VER}\`
-          *📦 Music:* \`${MUSIC_VER}\`
+          PATCHES_BLOCK=$(awk '
+            /^Patches:/ {
+              patch_line=$0
+              cl_line=""
+              if ((getline nxt) > 0 && nxt ~ /^\[Changelog\]/) {
+                cl_line=nxt
+              }
+              key = patch_line "\n" cl_line
+              if (!(key in seen)) {
+                seen[key]=1
+                if (out != "") out = out "\n\n"
+                out = out patch_line
+                if (cl_line != "") out = out "\n" cl_line
+              }
+            }
+            END { print out }
+          ' build.md)
+          PATCHES_BLOCK="${PATCHES_BLOCK:-N/A}"
 
-          *Build Info:*
-          • Patches: \`v${PATCHES_VER}\`
-          • Build: \`#${BUILD_NUM}\`
-          • CLI: \`v${CLI_VER}\`
+          LINKS=$(printf '%b' "• [GitHub Release](${RELEASE_URL})\n• [Builder Source](https://github.com/elohim-etz/morphe-builder)")
 
-          *What's Included:*
-          • Root modules (Magisk/KernelSU)
-          • Non-root APKs (requires MicroG)
+          PKG_LINES=""
+          while IFS= read -r line; do
+              PKG_NAME=$(echo "$line" | cut -d':' -f1 | sed 's/ ([^)]*)//g' | xargs)
+              PKG_VER=$(echo "$line" | cut -d':' -f2 | xargs)
 
-          *Installation:*
-          • Root: Flash module via Magisk/KernelSU
-          • Non-root: Install APK + [MicroG-RE](https://github.com/MorpheApp/MicroG-RE/releases)
+              if [[ "$PKG_LINES" != *"$PKG_NAME"* ]]; then
+                  PKG_LINES+=$'\n'"*📦 ${PKG_NAME}:* \`${PKG_VER}\`"
+              fi
+          done < <(grep -E '^[A-Za-z0-9 _-]+(\s*\([^)]+\))?:\s*[0-9]' build.md)
 
-          *Links:*
-          ${LINKS}
+          MSG=$(printf '%b' "🚀 *New Morphe CI Build Available!*\n${PKG_LINES}\n\n*Build Info:*\n• Build: \`#${BUILD_NUM}\`\n• CLI: \`v${CLI_VER}\`\n\n*Patches:*\n${PATCHES_BLOCK}\n\n*What's Included:*\n• Root modules (Magisk/KernelSU)\n• Non-root APKs (requires MicroG)\n\n*Installation:*\n• Root: Flash module via Magisk/KernelSU\n• Non-root: Install APK + [MicroG-RE](https://github.com/MorpheApp/MicroG-RE/releases)\n\n*Links:*\n${LINKS}\n\n_Built with ❤️ by_ [𝙴𝙻𝙾𝙷𝙸𝙼](https://t.me/elohim152)")
 
-          _Built with ❤️ by_ [𝙴𝙻𝙾𝙷𝙸𝙼](https://t.me/elohim152)"
-          
           cd build
-          declare -A YT_MODULES YT_APKS MUSIC_MODULES MUSIC_APKS
-          
+
+          declare -A BEST_APK_FILE
+          declare -A BEST_MOD_FILE
+          declare -A PKG_APK_URL
+          declare -A PKG_MOD_URL
+          declare -a PKG_LIST
+          declare -A SEEN_PKG
+
           for OUTPUT in *; do
+            [[ $OUTPUT =~ \.(apk|zip)$ ]] || continue
+
+            PKG_NAME="${OUTPUT%%-morphe*}"
+            if [[ "$PKG_NAME" == "$OUTPUT" ]]; then
+              PKG_NAME="${OUTPUT%-v*}"
+              PKG_NAME="${PKG_NAME%-module}"
+              PKG_NAME="${PKG_NAME%-*}"
+            fi
+
+            if [[ -z "${SEEN_PKG[$PKG_NAME]}" ]]; then
+              PKG_LIST+=("$PKG_NAME")
+              SEEN_PKG[$PKG_NAME]=1
+            fi
+
             DL_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/download/$BUILD_NUM/${OUTPUT}"
-            
-            if [[ $OUTPUT == *"youtube"* ]] && [[ $OUTPUT == *"module"* ]]; then
-              if [[ $OUTPUT == *"arm64"* ]]; then
-                YT_MODULES[arm64]="$DL_URL"
-              elif [[ $OUTPUT == *"arm"* ]]; then
-                YT_MODULES[arm]="$DL_URL"
+
+            if [[ $OUTPUT == *.apk ]]; then
+              CURRENT_BEST="${BEST_APK_FILE[$PKG_NAME]}"
+              if [[ -z "$CURRENT_BEST" ]]; then
+                BEST_APK_FILE[$PKG_NAME]="$OUTPUT"
+                PKG_APK_URL[$PKG_NAME]="$DL_URL"
               else
-                YT_MODULES[all]="$DL_URL"
+                if [[ "$OUTPUT" == *"arm64"* && "$CURRENT_BEST" != *"arm64"* ]]; then
+                  BEST_APK_FILE[$PKG_NAME]="$OUTPUT"
+                  PKG_APK_URL[$PKG_NAME]="$DL_URL"
+                elif [[ "$OUTPUT" != *"arm"* && "$CURRENT_BEST" == *"arm"* && "$CURRENT_BEST" != *"arm64"* ]]; then
+                  BEST_APK_FILE[$PKG_NAME]="$OUTPUT"
+                  PKG_APK_URL[$PKG_NAME]="$DL_URL"
+                fi
               fi
-            elif [[ $OUTPUT == *"youtube"* ]] && [[ $OUTPUT == *.apk ]]; then
-              if [[ $OUTPUT == *"arm64"* ]]; then
-                YT_APKS[arm64]="$DL_URL"
-              elif [[ $OUTPUT == *"arm"* ]]; then
-                YT_APKS[arm]="$DL_URL"
+            elif [[ $OUTPUT == *module*.zip ]]; then
+              CURRENT_BEST="${BEST_MOD_FILE[$PKG_NAME]}"
+              if [[ -z "$CURRENT_BEST" ]]; then
+                BEST_MOD_FILE[$PKG_NAME]="$OUTPUT"
+                PKG_MOD_URL[$PKG_NAME]="$DL_URL"
               else
-                YT_APKS[all]="$DL_URL"
-              fi
-            elif [[ $OUTPUT == *"music"* ]] && [[ $OUTPUT == *"module"* ]]; then
-              if [[ $OUTPUT == *"arm64"* ]]; then
-                MUSIC_MODULES[arm64]="$DL_URL"
-              elif [[ $OUTPUT == *"arm"* ]]; then
-                MUSIC_MODULES[arm]="$DL_URL"
-              else
-                MUSIC_MODULES[all]="$DL_URL"
-              fi
-            elif [[ $OUTPUT == *"music"* ]] && [[ $OUTPUT == *.apk ]]; then
-              if [[ $OUTPUT == *"arm64"* ]]; then
-                MUSIC_APKS[arm64]="$DL_URL"
-              elif [[ $OUTPUT == *"arm"* ]]; then
-                MUSIC_APKS[arm]="$DL_URL"
-              else
-                MUSIC_APKS[all]="$DL_URL"
+                if [[ "$OUTPUT" == *"arm64"* && "$CURRENT_BEST" != *"arm64"* ]]; then
+                  BEST_MOD_FILE[$PKG_NAME]="$OUTPUT"
+                  PKG_MOD_URL[$PKG_NAME]="$DL_URL"
+                elif [[ "$OUTPUT" != *"arm"* && "$CURRENT_BEST" == *"arm"* && "$CURRENT_BEST" != *"arm64"* ]]; then
+                  BEST_MOD_FILE[$PKG_NAME]="$OUTPUT"
+                  PKG_MOD_URL[$PKG_NAME]="$DL_URL"
+                fi
               fi
             fi
           done
-          
+
+          PAIR_ROWS=()
+          SINGLE_ROWS=()
+
+          for PKG in "${PKG_LIST[@]}"; do
+            APK_URL="${PKG_APK_URL[$PKG]}"
+            MOD_URL="${PKG_MOD_URL[$PKG]}"
+
+            DISPLAY_NAME=$(echo "$PKG" | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')
+
+            if [[ -n "$APK_URL" && -n "$MOD_URL" ]]; then
+              PAIR_ROWS+=("{\"text\":\"${DISPLAY_NAME} (APK)\",\"url\":\"${APK_URL}\"},{\"text\":\"${DISPLAY_NAME} (Module)\",\"url\":\"${MOD_URL}\"}")
+            elif [[ -n "$APK_URL" ]]; then
+              SINGLE_ROWS+=("{\"text\":\"${DISPLAY_NAME} (APK)\",\"url\":\"${APK_URL}\"}")
+            elif [[ -n "$MOD_URL" ]]; then
+              SINGLE_ROWS+=("{\"text\":\"${DISPLAY_NAME} (Module)\",\"url\":\"${MOD_URL}\"}")
+            fi
+          done
+
           BUTTONS='['
-          
-          if [ -n "${YT_APKS[arm64]}" ] || [ -n "${YT_APKS[all]}" ] || [ -n "${MUSIC_APKS[arm64]}" ] || [ -n "${MUSIC_APKS[all]}" ]; then
-            BUTTONS+='['
-            
-            if [ -n "${YT_APKS[arm64]}" ]; then
-              BUTTONS+="{\"text\":\"YouTube (APK)\",\"url\":\"${YT_APKS[arm64]}\"}"
-            elif [ -n "${YT_APKS[all]}" ]; then
-              BUTTONS+="{\"text\":\"YouTube (APK)\",\"url\":\"${YT_APKS[all]}\"}"
-            fi
-            
-            if [ -n "${MUSIC_APKS[arm64]}" ]; then
-              [ "${BUTTONS: -1}" = "}" ] && BUTTONS+=","
-              BUTTONS+="{\"text\":\"Music (APK)\",\"url\":\"${MUSIC_APKS[arm64]}\"}"
-            elif [ -n "${MUSIC_APKS[all]}" ]; then
-              [ "${BUTTONS: -1}" = "}" ] && BUTTONS+=","
-              BUTTONS+="{\"text\":\"Music (APK)\",\"url\":\"${MUSIC_APKS[all]}\"}"
-            fi
-            
-            BUTTONS+=']'
-          fi
-          
-          if [ -n "${YT_MODULES[arm64]}" ] || [ -n "${YT_MODULES[all]}" ] || [ -n "${MUSIC_MODULES[arm64]}" ] || [ -n "${MUSIC_MODULES[all]}" ]; then
-            [ "${BUTTONS: -1}" = "]" ] && BUTTONS+=","
-            BUTTONS+='['
-            
-            if [ -n "${YT_MODULES[arm64]}" ]; then
-              BUTTONS+="{\"text\":\"YouTube (Module)\",\"url\":\"${YT_MODULES[arm64]}\"}"
-            elif [ -n "${YT_MODULES[all]}" ]; then
-              BUTTONS+="{\"text\":\"YouTube (Module)\",\"url\":\"${YT_MODULES[all]}\"}"
-            fi
-            
-            if [ -n "${MUSIC_MODULES[arm64]}" ]; then
-              [ "${BUTTONS: -1}" = "}" ] && BUTTONS+=","
-              BUTTONS+="{\"text\":\"Music (Module)\",\"url\":\"${MUSIC_MODULES[arm64]}\"}"
-            elif [ -n "${MUSIC_MODULES[all]}" ]; then
-              [ "${BUTTONS: -1}" = "}" ] && BUTTONS+=","
-              BUTTONS+="{\"text\":\"Music (Module)\",\"url\":\"${MUSIC_MODULES[all]}\"}"
-            fi
-            
-            BUTTONS+=']'
-          fi
-          
-          if [ -n "${YT_APKS[arm]}" ]; then
-            [ "${BUTTONS: -1}" = "]" ] && BUTTONS+=","
-            BUTTONS+="[{\"text\":\"YouTube (APK ARM)\",\"url\":\"${YT_APKS[arm]}\"}]"
-          fi
-          
-          if [ -n "${YT_MODULES[arm]}" ]; then
-            [ "${BUTTONS: -1}" = "]" ] && BUTTONS+=","
-            BUTTONS+="[{\"text\":\"YouTube (Module ARM)\",\"url\":\"${YT_MODULES[arm]}\"}]"
-          fi
-          
-          if [ -n "${MUSIC_APKS[arm]}" ]; then
-            [ "${BUTTONS: -1}" = "]" ] && BUTTONS+=","
-            BUTTONS+="[{\"text\":\"Music (APK ARM)\",\"url\":\"${MUSIC_APKS[arm]}\"}]"
-          fi
-          
-          if [ -n "${MUSIC_MODULES[arm]}" ]; then
-            [ "${BUTTONS: -1}" = "]" ] && BUTTONS+=","
-            BUTTONS+="[{\"text\":\"Music (Module ARM)\",\"url\":\"${MUSIC_MODULES[arm]}\"}]"
-          fi
-          
+          FIRST_ROW=true
+
+          for ROW in "${PAIR_ROWS[@]}"; do
+            if [ "$FIRST_ROW" = true ]; then FIRST_ROW=false; else BUTTONS+=','; fi
+            BUTTONS+="[$ROW]"
+          done
+
+          for ROW in "${SINGLE_ROWS[@]}"; do
+            if [ "$FIRST_ROW" = true ]; then FIRST_ROW=false; else BUTTONS+=','; fi
+            BUTTONS+="[$ROW]"
+          done
+
           BUTTONS+=']'
-          
+
+          JSON_PAYLOAD=$(jq -n \
+            --arg chat_id "$TG_CHAT" \
+            --arg text "$MSG" \
+            --argjson keyboard "$BUTTONS" \
+            '{
+              chat_id: $chat_id,
+              text: $text,
+              parse_mode: "Markdown",
+              disable_web_page_preview: true,
+              reply_markup: {
+                inline_keyboard: $keyboard
+              }
+            }')
+
           POST_URL="https://api.telegram.org/bot${TG_TOKEN}/sendMessage"
-          
           RESPONSE=$(curl -s -X POST "$POST_URL" \
             -H "Content-Type: application/json" \
-            -d "{
-              \"chat_id\": \"$TG_CHAT\",
-              \"text\": \"$MSG\",
-              \"parse_mode\": \"Markdown\",
-              \"disable_web_page_preview\": true,
-              \"reply_markup\": {
-                \"inline_keyboard\": $BUTTONS
-              }
-            }")
-          
+            -d "$JSON_PAYLOAD")
+
           if echo "$RESPONSE" | grep -q '"ok":true'; then
-            echo "✅ Telegram notification sent successfully!"
+            echo "Telegram notification sent successfully!"
           else
-            echo "❌ Failed to send Telegram notification"
+            echo "Failed to send Telegram notification"
             echo "$RESPONSE"
             exit 1
           fi
