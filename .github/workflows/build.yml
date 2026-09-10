@@ -119,11 +119,11 @@ jobs:
       - name: Report to Telegram
         env:
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
+          TG_CHAT: ${{ vars.TG_CHAT }}
         if: env.TG_TOKEN != null
         run: |
           cd build || { echo "build folder not found"; exit 1; }
 
-          TG_CHAT="-1003087244808"
           BUILD_NUM="${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}"
           RELEASE_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$BUILD_NUM"
           cd ..
