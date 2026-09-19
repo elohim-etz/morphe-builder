@@ -1,6 +1,6 @@
 {
-  "version": "v7.92.0.977185651 (patches 1.4.2.mpp)",
-  "versionCode": 108,
-  "zipUrl": "https://github.com/elohim-etz/morphe-builder/releases/download/108/googlephotos-morphe-module-v7.92.0.977185651-all.zip",
+  "version": "v7.92.0.977185651 (patches 1.4.3.mpp)",
+  "versionCode": 109,
+  "zipUrl": "https://github.com/elohim-etz/morphe-builder/releases/download/109/googlephotos-morphe-module-v7.92.0.977185651-all.zip",
   "changelog": "https://raw.githubusercontent.com/elohim-etz/morphe-builder/update/build.md"
 }
