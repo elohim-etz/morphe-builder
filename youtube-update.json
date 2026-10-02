@@ -1,6 +1,6 @@
 {
-  "version": "v21.13.164 (patches 1.43.0.mpp)",
-  "versionCode": 107,
-  "zipUrl": "https://github.com/elohim-etz/morphe-builder/releases/download/107/youtube-morphe-module-v21.13.164-all.zip",
+  "version": "v21.16.256 (patches 1.45.0.mpp)",
+  "versionCode": 112,
+  "zipUrl": "https://github.com/elohim-etz/morphe-builder/releases/download/112/youtube-morphe-module-v21.16.256-all.zip",
   "changelog": "https://raw.githubusercontent.com/elohim-etz/morphe-builder/update/build.md"
 }
