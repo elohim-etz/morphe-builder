@@ -5,7 +5,7 @@ CWD=$(pwd)
 TEMP_DIR="temp"
 BIN_DIR="bin"
 BUILD_DIR="build"
-DL_SRCS=("direct" "archive" "apkmirror")
+DL_SRCS=("direct" "apkmirror" "archive")
 
 if [ "${GITHUB_TOKEN-}" ]; then GH_HEADER="Authorization: token ${GITHUB_TOKEN}"; else GH_HEADER=; fi
 NEXT_VER_CODE=${NEXT_VER_CODE:-$(date +'%Y%m%d')}
@@ -371,8 +371,8 @@ merge_splits() {
 		return 1
 	fi
 	# sign the merged stock apk
-	if ! OP=$(java -jar "$APKSIGNER" sign --ks ks-p12.keystore --ks-pass pass:123456789 --key-pass pass:123456789 --ks-key-alias jhc \
-		--out "${output}" "${output}-unsigned"); then
+	if ! OP=$(java -jar "$APKSIGNER" sign --ks Morphe.keystore --ks-pass pass:Morphe --key-pass pass: --ks-key-alias Morphe \
+	--out "${output}" "${output}-unsigned"); then
 		epr "apksigner error: $OP"
 		return 1
 	fi
@@ -472,69 +472,40 @@ get_apkmirror_resp() {
 	__APKMIRROR_CAT__="${1##*/}"
 }
 
-# -------------------- uptodown --------------------
-get_uptodown_resp() {
-	__UPTODOWN_RESP__=$(req "${1}/versions" -) || return 1
-	__UPTODOWN_RESP_PKG__=$(req "${1}/download" -) || return 1
-}
-get_uptodown_vers() { $HTMLQ --text ".version" <<<"$__UPTODOWN_RESP__"; }
-dl_uptodown() {
-	local uptodown_dlurl=$1 version=$2 output=$3 arch=$4 _dpi=$5
-	if [ "$arch" = "arm-v7a" ]; then arch="armeabi-v7a"; fi
+# -------------------- apkmirror --------------------
+dl_apkmirror() {
+	local url=$1 version=$2 output=$3 arch=$4 dpi=$5
+	local result
 
-	local apparch=('arm64-v8a, armeabi-v7a, x86_64' 'arm64-v8a, armeabi-v7a, x86, x86_64' 'arm64-v8a, armeabi-v7a')
-	if [ "$arch" != "all" ]; then
-		apparch+=("$arch")
-	fi
-
-	local op resp data_code
-	data_code=$($HTMLQ "#detail-app-name" --attribute data-code <<<"$__UPTODOWN_RESP__")
-	local versionURL=""
-	local is_bundle=false
-	for i in {1..20}; do
-		resp=$(req "${uptodown_dlurl}/apps/${data_code}/versions/${i}" -)
-		if ! op=$(jq -e -r ".data | map(select(.version == \"${version}\")) | .[0]" <<<"$resp"); then
-			continue
-		fi
-		if [ "$(jq -e -r ".kindFile" <<<"$op")" = "xapk" ]; then is_bundle=true; fi
-		if versionURL=$(jq -e -r '.versionURL' <<<"$op"); then break; else return 1; fi
-	done
-	if [ -z "$versionURL" ]; then return 1; fi
-	versionURL=$(jq -e -r '.url + "/" + .extraURL + "/" + (.versionID | tostring)' <<<"$versionURL")
-	resp=$(req "$versionURL" -) || return 1
-
-	local data_version files node_arch="" data_file_id node_class
-	data_version=$($HTMLQ '.button.variants' --attribute data-version <<<"$resp") || return 1
-	if [ "$data_version" ]; then
-		files=$(req "${uptodown_dlurl%/*}/app/${data_code}/version/${data_version}/files" - | jq -e -r .content) || return 1
-		for ((n = 1; n < 12; n += 1)); do
-			node_class=$($HTMLQ -w -t ".content > :nth-child($n)" --attribute class <<<"$files") || return 1
-			if [ "$node_class" != "variant" ]; then
-				node_arch=$($HTMLQ -w -t ".content > :nth-child($n)" <<<"$files" | xargs) || return 1
-				continue
-			fi
-			if [ -z "$node_arch" ]; then return 1; fi
-			if ! isoneof "$node_arch" "${apparch[@]}"; then continue; fi
-
-			file_type=$($HTMLQ -w -t ".content > :nth-child($n) > .v-file > span" <<<"$files") || return 1
-			if [ "$file_type" = "xapk" ]; then is_bundle=true; else is_bundle=false; fi
-			data_file_id=$($HTMLQ ".content > :nth-child($n) > .v-report" --attribute data-file-id <<<"$files") || return 1
-			resp=$(req "${uptodown_dlurl}/download/${data_file_id}-x" -)
-			break
-		done
-		if [ $n -eq 12 ]; then return 1; fi
-	fi
-	local data_url
-	data_url=$($HTMLQ "#detail-download-button" --attribute data-url <<<"$resp") || return 1
-	if [ $is_bundle = true ]; then
-		req "https://dw.uptodown.com/dwn/${data_url}" "$output.apkm" || return 1
+	if [ -f "${output}.apkm" ]; then
 		merge_splits "${output}.apkm" "${output}"
-	else
-		req "https://dw.uptodown.com/dwn/${data_url}" "$output"
+		return $?
 	fi
-}
-get_uptodown_pkg_name() { $HTMLQ --text "tr.full:nth-child(1) > td:nth-child(3)" <<<"$__UPTODOWN_RESP_PKG__"; }
 
+	pr "Using imported APKMirror scraper (Python + curl_cffi)"
+	if ! result=$(python3 apkmirror_bridge.py download "$url" "$version" "$output" "$arch" "$dpi"); then
+		epr "APKMirror scraper failed for version '$version', arch '$arch'"
+		return 1
+	fi
+
+	if [ -f "${output}.apkm" ]; then
+		merge_splits "${output}.apkm" "${output}" || return 1
+	elif [ ! -f "$output" ]; then
+		epr "APKMirror scraper returned without an APK: $result"
+		return 1
+	fi
+	return 0
+}
+get_apkmirror_vers() {
+	jq -r '.versions[]?' <<<"$__APKMIRROR_JSON__"
+}
+get_apkmirror_pkg_name() {
+	jq -r '.pkg_name // empty' <<<"$__APKMIRROR_JSON__"
+}
+get_apkmirror_resp() {
+	__APKMIRROR_JSON__=$(python3 apkmirror_bridge.py metadata "$1") || return 1
+	__APKMIRROR_CAT__=$(jq -r '.category // empty' <<<"$__APKMIRROR_JSON__")
+}
 # -------------------- archive --------------------
 dl_archive() {
 	local url=$1 version=$2 output=$3 arch=$4
@@ -589,8 +560,8 @@ patch_apk() {
 	local tmp_files
 	tmp_files="$(pwd)/$(mktemp -d -p "$TEMP_DIR")"
 
-	local cmd="java -jar '$cli_jar' patch '$stock_input' -o '$patched_apk' -p '$patches_jar' --keystore=ks.keystore \
---keystore-entry-password=123456789 --keystore-password=123456789 --signer=jhc --keystore-entry-alias=jhc -t '$tmp_files' $patcher_args"
+	local cmd="java -jar '$cli_jar' patch '$stock_input' -o '$patched_apk' -p '$patches_jar' --keystore=Morphe.keystore \
+--keystore-entry-password=Morphe --keystore-password= --signer=Morphe --keystore-entry-alias=Morphe -t '$tmp_files' $patcher_args"
 
 	# TODO: remove this later
 	local cli_name

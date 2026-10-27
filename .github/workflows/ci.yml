@@ -1,8 +1,20 @@
 name: CI
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 0-23/3 * * *"
+    inputs:
+      force_build:
+        description: "Run the single-patch test even if the patch version did not change"
+        required: true
+        type: boolean
+        default: false
+
+# Avoid overlapping CI checks/builds and races while updating the update branch.
+concurrency:
+  group: my-youtube-morphe-ci-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
 
 jobs:
   check:
@@ -25,24 +37,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if ! git checkout origin/update build.md; then
-            echo "first time building!"
-            echo "SHOULD_BUILD=1" >> $GITHUB_OUTPUT
+          if [ "${{ inputs.force_build }}" = "true" ]; then
+            echo "Forced single-patch test requested."
+            echo "SHOULD_BUILD=1" >> "$GITHUB_OUTPUT"
+          elif ! git checkout origin/update build.md; then
+            echo "First build: no previous build.md found."
+            echo "SHOULD_BUILD=1" >> "$GITHUB_OUTPUT"
           else
             UPDATE_CFG=$(./build.sh config.toml --config-update)
-            if [ "$UPDATE_CFG" ]; then
-              echo "'$UPDATE_CFG'"
-              echo "SHOULD_BUILD=1" >> $GITHUB_OUTPUT
+            if [ -n "$UPDATE_CFG" ]; then
+              echo "Patch/config update detected: $UPDATE_CFG"
+              echo "SHOULD_BUILD=1" >> "$GITHUB_OUTPUT"
             else
-              echo "SHOULD_BUILD=0" >> $GITHUB_OUTPUT
+              echo "No patch update detected; skipping build."
+              echo "SHOULD_BUILD=0" >> "$GITHUB_OUTPUT"
             fi
           fi
-
-      - name: Clear older runs
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh run list -L400 --json databaseId -q '.[].databaseId' | tail -n+10 | xargs -IID gh api "repos/$GITHUB_REPOSITORY/actions/runs/ID" -X DELETE || :
 
     outputs:
       SHOULD_BUILD: ${{ steps.should_build.outputs.SHOULD_BUILD }}
