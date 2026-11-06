@@ -15,9 +15,19 @@ arch = "both"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube"
 archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.youtube"
 patcher-args = "-e 'Change header' -Ocustom=res -e 'Custom branding' -OcustomIcon=res"
+exclusive-patches = false
 
 [Music]
-enabled = false
+app-name = "Music"
+enabled = true
+patches-source = "MorpheApp/morphe-patches"
+cli-source = "MorpheApp/morphe-cli"
+rv-brand = "Morphe"
+build-mode = "apk"
+arch = "arm64-v8a"
+apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube-music"
+archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.apps.youtube.music"
+exclusive-patches = false
 
 [GooglePhotos]
 enabled = false
