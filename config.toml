@@ -20,7 +20,7 @@ exclusive-patches = false
 [Music]
 app-name = "Music"
 enabled = true
-patches-source = "MorpheApp/morphe-patches"
+patches-source = "sashade8-ship-it/dual-vot-patches"
 cli-source = "MorpheApp/morphe-cli"
 rv-brand = "Morphe"
 build-mode = "apk"
