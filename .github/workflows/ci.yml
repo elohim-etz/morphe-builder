@@ -33,35 +33,56 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Should build?
-        id: should_build
+      - name: Check YouTube patches
+        id: youtube
         shell: bash
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ "${{ inputs.force_build }}" = "true" ]; then
-            echo "Forced single-patch test requested."
-            echo "SHOULD_BUILD=1" >> "$GITHUB_OUTPUT"
-          elif ! git checkout origin/update build.md; then
-            echo "First build: no previous build.md found."
+          set -euo pipefail
+          if [ "\${{ inputs.force_build }}" = "true" ] || ! git checkout origin/update -- build-youtube.md 2>/dev/null; then
             echo "SHOULD_BUILD=1" >> "$GITHUB_OUTPUT"
           else
-            UPDATE_CFG=$(./build.sh config.toml --config-update)
-            if [ -n "$UPDATE_CFG" ]; then
-              echo "Patch/config update detected: $UPDATE_CFG"
-              echo "SHOULD_BUILD=1" >> "$GITHUB_OUTPUT"
-            else
-              echo "No patch update detected; skipping build."
-              echo "SHOULD_BUILD=0" >> "$GITHUB_OUTPUT"
-            fi
+            cp build-youtube.md build.md
+            UPDATE_CFG=$(./build.sh config-youtube.toml --config-update)
+            echo "SHOULD_BUILD=$([[ -n "$UPDATE_CFG" ]] && echo 1 || echo 0)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check Music patches
+        id: music
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "\${{ inputs.force_build }}" = "true" ] || ! git checkout origin/update -- build-music.md 2>/dev/null; then
+            echo "SHOULD_BUILD=1" >> "$GITHUB_OUTPUT"
+          else
+            cp build-music.md build.md
+            UPDATE_CFG=$(./build.sh config-music.toml --config-update)
+            echo "SHOULD_BUILD=$([[ -n "$UPDATE_CFG" ]] && echo 1 || echo 0)" >> "$GITHUB_OUTPUT"
           fi
 
     outputs:
-      SHOULD_BUILD: ${{ steps.should_build.outputs.SHOULD_BUILD }}
+      YOUTUBE: \${{ steps.youtube.outputs.SHOULD_BUILD }}
+      MUSIC: \${{ steps.music.outputs.SHOULD_BUILD }}
 
-  build:
+  build_youtube:
     permissions: write-all
     needs: check
+    if: \${{ needs.check.outputs.YOUTUBE == 1 }}
     uses: ./.github/workflows/build.yml
-    if: ${{ needs.check.outputs.SHOULD_BUILD == 1 }}
+    with:
+      config_file: config-youtube.toml
+      release_prefix: "YouTube Morphe"
+      app_id: youtube
+      from_ci: false
+    secrets: inherit
+
+  build_music:
+    permissions: write-all
+    needs: [check, build_youtube]
+    if: \${{ always() && needs.check.outputs.MUSIC == 1 && (needs.build_youtube.result == 'success' || needs.build_youtube.result == 'skipped') }}
+    uses: ./.github/workflows/build.yml
+    with:
+      config_file: config-music.toml
+      release_prefix: "Music Morphe"
+      app_id: music
+      from_ci: false
     secrets: inherit
