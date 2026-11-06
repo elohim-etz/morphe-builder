@@ -1,0 +1,24 @@
+enable-module-update = true
+parallel-jobs = 1
+patches-version = "latest"
+cli-version = "latest"
+
+[YouTube]
+app-name = "YouTube"
+enabled = true
+version = "auto"
+patches-source = "sashade8-ship-it/dual-vot-patches"
+cli-source = "MorpheApp/morphe-cli"
+rv-brand = "Morphe"
+build-mode = "apk"
+arch = "both"
+apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube"
+archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.youtube"
+patcher-args = "-e 'Change header' -Ocustom=res -e 'Custom branding' -OcustomIcon=res"
+exclusive-patches = false
+
+[Music]
+enabled = false
+
+[GooglePhotos]
+enabled = false
