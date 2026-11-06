@@ -251,7 +251,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: build-payload-${{ github.run_id }}-${{ github.run_attempt }}
+          name: build-payload-${{ inputs.app_id }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             build.md
             build/*
@@ -280,7 +280,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: build-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          name: build-diagnostics-${{ inputs.app_id }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             build.md
             build/
@@ -306,7 +306,7 @@ jobs:
         if: ${{ needs.build.result == 'success' }}
         uses: actions/download-artifact@v4
         with:
-          name: build-payload-${{ github.run_id }}-${{ github.run_attempt }}
+          name: build-payload-${{ inputs.app_id }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: payload
 
       - name: Check build payload
@@ -376,7 +376,7 @@ jobs:
           get_update_json() {
             jq -n --arg version "$1" --argjson versionCode "$NEXT_VER_CODE" \
               --arg zipUrl "$2" \
-              --arg changelog "https://raw.githubusercontent.com/$GITHUB_REPOSITORY/update/build.md" \
+              --arg changelog "https://raw.githubusercontent.com/$GITHUB_REPOSITORY/update/build-${APP_ID}.md" \
               '{version:$version, versionCode:$versionCode, zipUrl:$zipUrl, changelog:$changelog}'
           }
 
