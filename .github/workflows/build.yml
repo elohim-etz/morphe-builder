@@ -18,7 +18,7 @@ on:
       config_file:
         type: string
         required: false
-        default: config.toml
+        default: config-youtube.toml
       release_prefix:
         type: string
         required: false
@@ -132,7 +132,7 @@ jobs:
               continue
             fi
 
-            DRAFT_TITLE="YouTube build $DATE"
+            DRAFT_TITLE="$RELEASE_PREFIX build $DATE"
             if [ -n "$RELEASE_PREFIX" ]; then
               DRAFT_TITLE="$RELEASE_PREFIX $DRAFT_TITLE"
             fi
