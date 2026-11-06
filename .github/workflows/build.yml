@@ -23,6 +23,10 @@ on:
         type: string
         required: false
         default: "YouTube Morphe"
+      app_id:
+        type: string
+        required: false
+        default: youtube
   workflow_dispatch:
     inputs:
       config_file:
@@ -35,6 +39,14 @@ on:
         required: false
         type: string
         default: "YouTube Morphe"
+      app_id:
+        description: "App identifier used for separate release tags and changelogs"
+        required: true
+        type: choice
+        options:
+          - youtube
+          - music
+        default: youtube
 
 jobs:
   prepare:
@@ -91,6 +103,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_PREFIX: ${{ inputs.release_prefix }}
+          APP_ID: ${{ inputs.app_id }}
         shell: bash
         run: |
           set -euo pipefail
@@ -100,7 +113,9 @@ jobs:
           # Keep ordinary releases under stable- and mark manual A9 builds
           # separately, while preserving a single sortable timestamp format.
           TAG_PREFIX="stable"
-          if [ "$RELEASE_PREFIX" = "A9" ]; then
+          if [ "$APP_ID" = "music" ]; then
+            TAG_PREFIX="music"
+          elif [ "$RELEASE_PREFIX" = "A9" ]; then
             TAG_PREFIX="a9"
           fi
 
@@ -346,6 +361,7 @@ jobs:
         env:
           TAG: ${{ needs.prepare.outputs.tag }}
           NEXT_VER_CODE: ${{ needs.prepare.outputs.next_ver_code }}
+          APP_ID: ${{ inputs.app_id }}
         run: |
           set -euo pipefail
           cp payload/build.md build.md
@@ -378,11 +394,11 @@ jobs:
           done
           cd ../..
           find . -name "*-update.json" | grep . >/dev/null || touch dummy-update.json
-          cp payload/build.md build.md
+          cp payload/build.md "build-${APP_ID}.md"
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add build.md *-update.json dummy-update.json 2>/dev/null || git add build.md *-update.json
+          git add "build-${APP_ID}.md" *-update.json dummy-update.json 2>/dev/null || git add "build-${APP_ID}.md" *-update.json
           if ! git diff --cached --quiet; then
             git commit -m "Bump version $NEXT_VER_CODE"
             git push origin HEAD:update
