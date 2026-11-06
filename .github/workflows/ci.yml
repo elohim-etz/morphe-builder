@@ -38,7 +38,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [ "\${{ inputs.force_build }}" = "true" ] || ! git checkout origin/update -- build-youtube.md 2>/dev/null; then
+          if [ "${{ inputs.force_build }}" = "true" ] || ! git checkout origin/update -- build-youtube.md 2>/dev/null; then
             echo "SHOULD_BUILD=1" >> "$GITHUB_OUTPUT"
           else
             cp build-youtube.md build.md
@@ -51,7 +51,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [ "\${{ inputs.force_build }}" = "true" ] || ! git checkout origin/update -- build-music.md 2>/dev/null; then
+          if [ "${{ inputs.force_build }}" = "true" ] || ! git checkout origin/update -- build-music.md 2>/dev/null; then
             echo "SHOULD_BUILD=1" >> "$GITHUB_OUTPUT"
           else
             cp build-music.md build.md
@@ -60,13 +60,13 @@ jobs:
           fi
 
     outputs:
-      YOUTUBE: \${{ steps.youtube.outputs.SHOULD_BUILD }}
-      MUSIC: \${{ steps.music.outputs.SHOULD_BUILD }}
+      YOUTUBE: ${{ steps.youtube.outputs.SHOULD_BUILD }}
+      MUSIC: ${{ steps.music.outputs.SHOULD_BUILD }}
 
   build_youtube:
     permissions: write-all
     needs: check
-    if: \${{ needs.check.outputs.YOUTUBE == 1 }}
+    if: ${{ needs.check.outputs.YOUTUBE == 1 }}
     uses: ./.github/workflows/build.yml
     with:
       config_file: config-youtube.toml
@@ -78,7 +78,7 @@ jobs:
   build_music:
     permissions: write-all
     needs: [check, build_youtube]
-    if: \${{ always() && needs.check.outputs.MUSIC == 1 && (needs.build_youtube.result == 'success' || needs.build_youtube.result == 'skipped') }}
+    if: ${{ always() && needs.check.outputs.MUSIC == 1 && (needs.build_youtube.result == 'success' || needs.build_youtube.result == 'skipped') }}
     uses: ./.github/workflows/build.yml
     with:
       config_file: config-music.toml
