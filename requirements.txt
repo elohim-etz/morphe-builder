@@ -1,3 +1,2 @@
 # Python dependencies for the APKMirror scraper bridge
 beautifulsoup4
-curl_cffi
